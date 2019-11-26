@@ -16,6 +16,10 @@
 
     <properties>
         <java.version>1.8</java.version>
+        <sonar.projectKey>Mahendran-Natarajan_ecommerceapp</sonar.projectKey>
+        <sonar.organization>mahendran-natarajan</sonar.organization>
+        <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+        <sonar.login>49f86e484b2353fcb867cbf2468ce6ec0dbdc38f</sonar.login>
     </properties>
 
     <dependencies>
