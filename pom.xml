@@ -94,6 +94,14 @@
                 <version>0.8.2</version>
                 <executions>
                     <execution>
+                        <configuration>
+                                <excludes>
+                                    <exclude>**/*Config.*</exclude>
+                                    <exclude>**/*Dto.*</exclude>
+                                    <exclude>**/*Response.*</exclude>
+                                    <exclude>**/entity/*.*</exclude>
+                                </excludes>
+                        </configuration>
                         <goals>
                             <goal>prepare-agent</goal>
                         </goals>

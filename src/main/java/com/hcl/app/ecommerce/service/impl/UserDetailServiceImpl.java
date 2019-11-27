@@ -9,6 +9,10 @@ import org.springframework.stereotype.Service;
 
 /**
  * The type User detail service.
+ * @author manatara
+ * @since 27-11-2019
+ * @version 1.0
+ *
  */
 @Service
 public class UserDetailServiceImpl implements UserDetailService {
@@ -38,11 +42,10 @@ public class UserDetailServiceImpl implements UserDetailService {
     @Override
     public boolean getUser(UserDetail userDetails) {
         UserDetail userDetail = userDetailRepository.findByUserName(userDetails.getUserName());
-        if (userDetail != null) {
-            if (userDetails.getPassword().equals(userDetail.getPassword())) {
+        if (userDetail != null &&
+            userDetails.getPassword().equals(userDetail.getPassword())) {
                 return true;
             }
-        }
         return false;
     }
 }

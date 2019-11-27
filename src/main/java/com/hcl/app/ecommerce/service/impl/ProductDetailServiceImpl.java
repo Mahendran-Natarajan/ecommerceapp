@@ -13,7 +13,10 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * The type Product detail service.
+ * Product detail service.
+ * @author manatara
+ * @since 27-11-2019
+ * @version 1.0
  */
 @Service
 public class ProductDetailServiceImpl implements ProductDetailService {

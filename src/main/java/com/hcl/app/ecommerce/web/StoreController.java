@@ -17,6 +17,10 @@ import java.util.List;
 
 /**
  *  Store controller - all the stores related functions will be written here
+ *  @author manatara
+ *  @since 27-11-2019
+ *  @version 1.0
+ *
  */
 @RestController
 @RequestMapping("/stores")

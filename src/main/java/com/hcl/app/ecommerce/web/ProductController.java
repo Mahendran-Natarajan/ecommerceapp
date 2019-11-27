@@ -7,6 +7,7 @@ import com.hcl.app.ecommerce.dto.response.ApiResponse;
 import com.hcl.app.ecommerce.dto.response.ProductDetailsResponse;
 import com.hcl.app.ecommerce.dto.response.ProductRatingDtoResponse;
 import com.hcl.app.ecommerce.entity.ProductDetail;
+import com.hcl.app.ecommerce.exception.ProductNotFoundException;
 import com.hcl.app.ecommerce.service.ProductDetailService;
 import com.hcl.app.ecommerce.util.Constant;
 import org.modelmapper.ModelMapper;
@@ -15,12 +16,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 /**
  *  Product controller - all the product related function will be written here
+ *  @author manatara
+ *  @since 27-11-2019
+ *  @version 1.0
  */
 @RestController
 @RequestMapping("/products")
@@ -38,15 +43,19 @@ public class ProductController {
      * @param productName the product name
      * @return the product details as response entity
      */
-    @GetMapping("/product-by-name")
-    public ResponseEntity<ProductDetailsResponse> getProductByName(@RequestParam String productName) {
+    @GetMapping("/product-by-name/{productName}")
+    public ResponseEntity<ProductDetailsResponse> getProductByName(@PathVariable @Valid String productName) throws ProductNotFoundException {
         List<ProductDetail> productDetails = this.productDetailService.getProductByName(productName);
-        List<ProductDetailsDto> productDetailsDtos = productDetails.stream().map(this::convertEntityToDto).collect(Collectors.toList());
-        ProductDetailsResponse response = new ProductDetailsResponse();
-        response.setProductDetailsDtos(productDetailsDtos);
-        response.setStatusCode(Constant.SUCCESS_CODE);
-        response.setMessage(Constant.SUCCESS_MESSAGE);
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        if (productDetails.size() > 0) {
+            List<ProductDetailsDto> productDetailsDtos = productDetails.stream().map(this::convertEntityToDto).collect(Collectors.toList());
+            ProductDetailsResponse response = new ProductDetailsResponse();
+            response.setProductDetailsDtos(productDetailsDtos);
+            response.setStatusCode(Constant.SUCCESS_CODE);
+            response.setMessage(Constant.SUCCESS_MESSAGE);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } else {
+            throw new ProductNotFoundException(Constant.PRODUCT_NOT_FOUND);
+        }
     }
 
     /**
@@ -55,8 +64,8 @@ public class ProductController {
      * @param productId the product id
      * @return the response entity of product rating
      */
-    @GetMapping("view-product")
-    public ResponseEntity<ProductRatingDtoResponse> viewProductDetails(@RequestParam String productId) {
+    @GetMapping("view-product/{productId}")
+    public ResponseEntity<ProductRatingDtoResponse> viewProductDetails(@PathVariable String productId) {
         ProductDetail productDetail = this.productDetailService.getProduct(productId);
         List<RatingPojo> storeRatings = this.productDetailService.getStoreRatings(productDetail.getProductId());
 
@@ -92,7 +101,7 @@ public class ProductController {
      * @return the response entity
      */
     @PostMapping
-    public ResponseEntity<ApiResponse> saveProductDetails(@RequestBody ProductDetailsDto productDetailsDto) {
+    public ResponseEntity<ApiResponse> saveProductDetails(@RequestBody @Valid ProductDetailsDto productDetailsDto) {
         ProductDetail productDetail = convertToEntity(productDetailsDto);
         ApiResponse apiResponse = this.productDetailService.saveProductDetails(productDetail);
         apiResponse.setMessage(Constant.SUCCESS_MESSAGE);

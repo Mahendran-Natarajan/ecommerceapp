@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import javax.validation.constraints.NotBlank;
+
 /**
  * The type Product store details dto.
  */
@@ -15,5 +17,6 @@ import lombok.Setter;
 public class ProductStoreDetailsDto {
 
     private long productStoreId;
+    @NotBlank(message = "product price should not be blank")
     private Double productPrice;
 }

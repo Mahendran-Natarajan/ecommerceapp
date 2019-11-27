@@ -6,6 +6,7 @@ import com.hcl.app.ecommerce.dto.response.ProductDetailsResponse;
 import com.hcl.app.ecommerce.dto.response.ProductRatingDtoResponse;
 import com.hcl.app.ecommerce.entity.ProductDetail;
 import com.hcl.app.ecommerce.entity.ProductRatingDetail;
+import com.hcl.app.ecommerce.exception.ProductNotFoundException;
 import com.hcl.app.ecommerce.service.ProductDetailService;
 import org.junit.Assert;
 import org.junit.Test;
@@ -42,8 +43,26 @@ public class ProductControllerTest {
     /**
      * Gets product by name test.
      */
+    @Test(expected = ProductNotFoundException.class)
+    public void getProductByNameTest() throws ProductNotFoundException {
+        ResponseEntity<ProductDetailsResponse> productDetailsResponseResponseEntity = productController.getProductByName("Apple");
+        System.out.println("ProductControllerTest.getProductByNameTest" + productDetailsResponseResponseEntity.getStatusCode());
+        Assert.assertNotNull(productDetailsResponseResponseEntity);
+        Assert.assertEquals(200, productDetailsResponseResponseEntity.getStatusCode().value());
+    }
+
+
+    /**
+     * Gets product by name test.
+     */
     @Test
-    public void getProductByNameTest() {
+    public void getFindProductByName() throws ProductNotFoundException {
+        List<ProductDetail> productDetails = new ArrayList<>();
+        ProductDetail productDetail = new ProductDetail();
+        productDetail.setProductId(1);
+        productDetail.setProductName("Apple");
+        productDetails.add(productDetail);
+        Mockito.when(productDetailService.getProductByName(any())).thenReturn(productDetails);
         ResponseEntity<ProductDetailsResponse> productDetailsResponseResponseEntity = productController.getProductByName("Apple");
         System.out.println("ProductControllerTest.getProductByNameTest" + productDetailsResponseResponseEntity.getStatusCode());
         Assert.assertNotNull(productDetailsResponseResponseEntity);

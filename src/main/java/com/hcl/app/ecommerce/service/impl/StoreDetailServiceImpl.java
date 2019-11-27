@@ -11,6 +11,9 @@ import java.util.Optional;
 
 /**
  * Store detail service implementation
+ * @author manatara
+ * @since 27-11-2019
+ * @version 1.0
  */
 @Service
 public class StoreDetailServiceImpl implements StoreDetailService {
