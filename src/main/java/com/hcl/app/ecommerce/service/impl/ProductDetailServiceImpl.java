@@ -3,9 +3,11 @@ package com.hcl.app.ecommerce.service.impl;
 import com.hcl.app.ecommerce.dto.RatingPojo;
 import com.hcl.app.ecommerce.dto.response.ApiResponse;
 import com.hcl.app.ecommerce.entity.ProductDetail;
+import com.hcl.app.ecommerce.exception.ProductNotFoundException;
 import com.hcl.app.ecommerce.repository.ProductDetailRepository;
 import com.hcl.app.ecommerce.repository.ProductRatingDetailRepository;
 import com.hcl.app.ecommerce.service.ProductDetailService;
+import com.hcl.app.ecommerce.util.Constant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -28,12 +30,13 @@ public class ProductDetailServiceImpl implements ProductDetailService {
     private ProductRatingDetailRepository productRatingDetailRepository;
 
     @Override
-    public ProductDetail getProduct(String productId) {
+    public ProductDetail getProduct(String productId) throws ProductNotFoundException {
         Optional<ProductDetail> productDetail = productDetailRepository.findById(Long.parseLong(productId));
         if (productDetail.isPresent()) {
             return productDetail.get();
+        } else {
+            throw new ProductNotFoundException(Constant.PRODUCT_NOT_FOUND);
         }
-        return null;
     }
 
     @Override
@@ -49,10 +52,10 @@ public class ProductDetailServiceImpl implements ProductDetailService {
 
     @Override
     public ApiResponse saveProductDetails(ProductDetail productDetails) {
-        ProductDetail productDetail = productDetailRepository.save(productDetails);
+        productDetailRepository.save(productDetails);
         ApiResponse apiResponse = new ApiResponse();
         apiResponse.setStatusCode(200);
-        apiResponse.setMessage("Product stored " + productDetail.getProductId());
+        apiResponse.setMessage("Success");
         return apiResponse;
     }
 

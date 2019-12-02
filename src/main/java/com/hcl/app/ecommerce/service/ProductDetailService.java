@@ -3,6 +3,7 @@ package com.hcl.app.ecommerce.service;
 import com.hcl.app.ecommerce.dto.RatingPojo;
 import com.hcl.app.ecommerce.dto.response.ApiResponse;
 import com.hcl.app.ecommerce.entity.ProductDetail;
+import com.hcl.app.ecommerce.exception.ProductNotFoundException;
 
 import java.util.List;
 
@@ -25,7 +26,7 @@ public interface ProductDetailService {
      * @param productId the product id
      * @return the product
      */
-    ProductDetail getProduct(String productId);
+    ProductDetail getProduct(String productId) throws ProductNotFoundException;
 
     /**
      * Gets product by name.

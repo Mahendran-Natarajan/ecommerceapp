@@ -41,11 +41,12 @@ public class UserDetailServiceImpl implements UserDetailService {
      */
     @Override
     public boolean getUser(UserDetail userDetails) {
+        boolean userExists = false ;
         UserDetail userDetail = userDetailRepository.findByUserName(userDetails.getUserName());
         if (userDetail != null &&
             userDetails.getPassword().equals(userDetail.getPassword())) {
-                return true;
+                userExists = true;
             }
-        return false;
+        return userExists;
     }
 }

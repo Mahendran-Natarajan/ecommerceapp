@@ -46,7 +46,7 @@ public class ProductController {
     @GetMapping("/product-by-name/{productName}")
     public ResponseEntity<ProductDetailsResponse> getProductByName(@PathVariable @Valid String productName) throws ProductNotFoundException {
         List<ProductDetail> productDetails = this.productDetailService.getProductByName(productName);
-        if (productDetails.size() > 0) {
+        if (!productDetails.isEmpty()) {
             List<ProductDetailsDto> productDetailsDtos = productDetails.stream().map(this::convertEntityToDto).collect(Collectors.toList());
             ProductDetailsResponse response = new ProductDetailsResponse();
             response.setProductDetailsDtos(productDetailsDtos);
@@ -65,7 +65,7 @@ public class ProductController {
      * @return the response entity of product rating
      */
     @GetMapping("view-product/{productId}")
-    public ResponseEntity<ProductRatingDtoResponse> viewProductDetails(@PathVariable String productId) {
+    public ResponseEntity<ProductRatingDtoResponse> viewProductDetails(@PathVariable String productId) throws ProductNotFoundException {
         ProductDetail productDetail = this.productDetailService.getProduct(productId);
         List<RatingPojo> storeRatings = this.productDetailService.getStoreRatings(productDetail.getProductId());
 

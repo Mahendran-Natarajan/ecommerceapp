@@ -43,9 +43,6 @@ public class StoreDetailServiceImpl implements StoreDetailService {
     @Override
     public StoreDetail getStoreDetailsById(Long storeId) {
         Optional<StoreDetail> storeDetail = storeDetailRepository.findById(storeId);
-        if (storeDetail.isPresent()) {
-            return storeDetail.get();
-        }
-        return null;
+        return storeDetail.orElse(null);
     }
 }

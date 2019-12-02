@@ -1,7 +1,9 @@
 package com.hcl.app.ecommerce.service;
 
 import com.hcl.app.ecommerce.dto.RatingPojo;
+import com.hcl.app.ecommerce.dto.response.ApiResponse;
 import com.hcl.app.ecommerce.entity.ProductDetail;
+import com.hcl.app.ecommerce.exception.ProductNotFoundException;
 import com.hcl.app.ecommerce.repository.ProductDetailRepository;
 import com.hcl.app.ecommerce.repository.ProductRatingDetailRepository;
 import com.hcl.app.ecommerce.service.impl.ProductDetailServiceImpl;
@@ -38,19 +40,28 @@ public class ProductDetailServiceTest {
     /**
      * Test get product negative.
      */
-    @Test
-    public void testGetProductNegative() {
-        Optional<ProductDetail> productDetails = Optional.of(new ProductDetail());
-        Mockito.when(productDetailRepository.findById(any())).thenReturn(productDetails);
-        Optional<ProductDetail> productDetailOptional = productDetailRepository.findById(Long.parseLong("1"));
-        Assert.assertEquals(true, productDetailOptional.isPresent());
+    @Test (expected = ProductNotFoundException.class)
+    public void testGetProductNegative() throws ProductNotFoundException {
+        ProductDetail productDetail1 = new ProductDetail();
+        productDetail1.setProductId(100);
+        productDetail1.setProductName("MobileCase");
+        productDetail1.setProductDesc("product desc");
+        Optional<ProductDetail> productDetails = Optional.of(productDetail1);
+        Mockito.when(productDetailRepository.findById(any())).thenAnswer(invocation -> { throw new ProductNotFoundException("Not Found");});
+        productDetailService.getProduct("1");
+    }
+
+    @Test (expected = ProductNotFoundException.class)
+    public void testGetProductNegative2() throws ProductNotFoundException {
+        Mockito.when(productDetailRepository.findById(any())).thenReturn(Optional.empty());
+        System.out.println("Get Product " +productDetailService.getProduct("1"));
     }
 
     /**
      * Test get product positive.
      */
     @Test
-    public void testGetProductPositive() {
+    public void testGetProductPositive() throws ProductNotFoundException {
         ProductDetail productDetail1 = new ProductDetail();
         productDetail1.setProductId(1);
         productDetail1.setProductName("MobileCase");
@@ -91,8 +102,25 @@ public class ProductDetailServiceTest {
         productDetail.setProductName("Mobile");
         productDetails.add(productDetail);
         Mockito.when(productDetailRepository.findAllByProductNameContains(any())).thenReturn(productDetails);
-        List<ProductDetail> productDetails1 = productDetailRepository.findAllByProductNameContains("Mobile");
+        List<ProductDetail> productDetails1 = productDetailService.getProductByName("Mobile");
         Assert.assertNotNull(productDetails1);
         Assert.assertEquals(1, productDetails1.size());
+    }
+
+    @Test
+    public void testSaveProduct() {
+        ProductDetail productDetail = new ProductDetail(new HashSet<>(), 1, "ProduName", "produDesc", new HashSet<>());
+        productDetail.setProductId(1);
+        productDetail.setProductName("Mobile");
+        productDetail.setProductRatingDetail(new HashSet<>());
+        productDetail.setStoreDetails(new HashSet<>());
+        ApiResponse apiResponseExpected = new ApiResponse();
+        apiResponseExpected.setStatusCode(200);
+        apiResponseExpected.setMessage("success");
+        Mockito.when(productDetailRepository.save(any())).thenReturn(productDetail);
+        ApiResponse apiResponse = productDetailService.saveProductDetails(productDetail);
+        Assert.assertNotNull(apiResponse);
+        Assert.assertEquals("Success", apiResponse.getMessage());
+        Assert.assertEquals(200, apiResponse.getStatusCode());
     }
 }

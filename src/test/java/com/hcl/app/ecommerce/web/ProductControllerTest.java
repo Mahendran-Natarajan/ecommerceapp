@@ -1,6 +1,8 @@
 package com.hcl.app.ecommerce.web;
 
 import com.hcl.app.ecommerce.dto.ProductDetailsDto;
+import com.hcl.app.ecommerce.dto.ProductRatingDetailDto;
+import com.hcl.app.ecommerce.dto.RatingPojo;
 import com.hcl.app.ecommerce.dto.response.ApiResponse;
 import com.hcl.app.ecommerce.dto.response.ProductDetailsResponse;
 import com.hcl.app.ecommerce.dto.response.ProductRatingDtoResponse;
@@ -18,10 +20,8 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.mockito.ArgumentMatchers.any;
 
@@ -73,7 +73,7 @@ public class ProductControllerTest {
      * View product details test.
      */
     @Test
-    public void viewProductDetailsTest() {
+    public void viewProductDetailsTest() throws ProductNotFoundException {
 
         ProductDetail product = new ProductDetail();
         product.setProductId(1);
@@ -85,11 +85,28 @@ public class ProductControllerTest {
         product.setProductRatingDetail(productRatingDetails);
         List<ProductDetail> productDetails = new ArrayList<ProductDetail>();
         productDetails.add(product);
-        Mockito.when(productDetailService.getProduct(any())).thenReturn(product);
+
+        List<RatingPojo> storeRatings = new ArrayList<>();
+        RatingPojo pojo = new RatingPojo();
+        pojo.setStoreName("Amazon");
+        pojo.setRating(4);
+        storeRatings.add(pojo);
+        Mockito.when(this.productDetailService.getProduct(any())).thenReturn(product);
+        Mockito.when(this.productDetailService.getStoreRatings(any())).thenReturn(storeRatings);
         ResponseEntity<ProductRatingDtoResponse> productRatingDtoResponseResponseEntity = productController.viewProductDetails("1");
         ProductDetail productDetail = this.productDetailService.getProduct("1");
         Assert.assertNotNull(productDetail);
         Assert.assertEquals(1, productDetail.getProductId());
+        Set<ProductRatingDetail> productRatings = productDetail.getProductRatingDetail();
+        OptionalDouble avg = productRatings.stream().mapToInt(p -> p.getRating()).average();
+        ProductRatingDetailDto ratingDetailDto = new ProductRatingDetailDto();
+        List<ProductRatingDetailDto> productRatingDetailDtos = productRatings.stream().map(p -> {
+            ratingDetailDto.setRating(p.getRating());
+            ratingDetailDto.setStoreName(p.getStoreDetail().getStoreName());
+            ratingDetailDto.setRatingId(p.getRatingId());
+            return ratingDetailDto;
+        }).collect(Collectors.toList());
+        Assert.assertNotNull(productRatingDetailDtos);
     }
 
     /**
@@ -107,6 +124,28 @@ public class ProductControllerTest {
 
         ProductDetail productDetail = new ProductDetail();
         productDetail.setProductName("test1");
+        productDetail.setProductDesc("test");
+        Mockito.when(this.productDetailService.saveProductDetails(any())).thenReturn(apiResponse);
+        ApiResponse apiResponse2 = this.productDetailService.saveProductDetails(productDetail);
+        ResponseEntity<ApiResponse> saveProductDetails = this.productController.saveProductDetails(productDetailsDto);
+        Assert.assertEquals(201, saveProductDetails.getStatusCode().value());
+    }
+
+    /**
+     * Save method for check valid exceptions
+     */
+    @Test
+    public void saveProductValidCheckTest() {
+        ProductDetailsDto productDetailsDto = new ProductDetailsDto();
+        productDetailsDto.setProductId(4);
+        productDetailsDto.setProductDesc("test");
+        productDetailsDto.setProductName("");
+        ApiResponse apiResponse = new ApiResponse();
+        apiResponse.setStatusCode(400);
+        apiResponse.setMessage("Error");
+
+        ProductDetail productDetail = new ProductDetail();
+        productDetail.setProductName("");
         productDetail.setProductDesc("test");
         Mockito.when(this.productDetailService.saveProductDetails(any())).thenReturn(apiResponse);
         ApiResponse apiResponse2 = this.productDetailService.saveProductDetails(productDetail);
